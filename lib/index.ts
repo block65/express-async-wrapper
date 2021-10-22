@@ -11,21 +11,24 @@ type AsyncRequestHandler<
   ResBody = any,
   ReqBody = any,
   ReqQuery = core.Query,
-  Locals extends Record<string, any> = Record<string, any>,
 > = (
-  ...args: Parameters<RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals>>
+  ...args: Parameters<RequestHandler<P, ResBody, ReqBody, ReqQuery>>
 ) => Promise<void>;
 
-export function expressAsyncWrap<T = any>(
-  fn: AsyncRequestHandler<
-    core.ParamsDictionary,
-    T,
-    ValidRequestBody,
-    core.Query
-  >,
+export function expressAsyncWrap<
+  Params = never,
+  ReqBody = never,
+  ResBody = never,
+  ReqQuery = never,
+>(
+  fn: AsyncRequestHandler<Params, ResBody, ReqBody, ReqQuery>,
+): RequestHandler<Params, ResBody, ReqBody, ReqQuery>;
+
+export function expressAsyncWrap<Res = any>(
+  fn: AsyncRequestHandler<core.ParamsDictionary, Res, ValidRequestBody>,
 ): RequestHandler<
   core.ParamsDictionary,
-  ValidResponseBody<T>,
+  ValidResponseBody<Res>,
   ValidRequestBody
 > {
   return (req, res, next): Promise<unknown> => fn(req, res, next).catch(next);
